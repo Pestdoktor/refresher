@@ -35,7 +35,7 @@
         stopHandler();
         return;
       }
-      setTimeout(browser.devtools.inspectedWindow.reload, interval);
+      setTimeout(browser.devtools.inspectedWindow.reload, interval * 1000);
     }
   }
 
