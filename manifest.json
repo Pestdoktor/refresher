@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
 	"name": "refresher",
-	"version" : "0.2.2",
+	"version" : "0.2.3",
 	"icons": {
 		"48": "black.png"
 	},
