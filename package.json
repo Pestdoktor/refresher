@@ -1,5 +1,5 @@
 {
-  "name": "svelte-app",
+  "name": "refresher",
   "version": "0.2.3",
   "devDependencies": {
     "prettier": "^1.19.1",
