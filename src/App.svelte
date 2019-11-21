@@ -1,8 +1,9 @@
 <script>
   let interval = 0;
   let active = false;
-  let original = undefined;
-  let originalContent = undefined;
+  let originalSize = undefined;
+  let originalContent = "";
+  let content = "";
   const prod = typeof browser !== "undefined";
   let url;
   if (prod) {
@@ -12,31 +13,34 @@
   }
 
   function stopHandler() {
-    active = false;
-    original = undefined;
-    originalContent = undefined;
     browser.devtools.network.onRequestFinished.removeListener(handler);
-  }
-
-  function compareContent([c]) {
-    if (typeof originalContent === "undefined") {
-      originalContent = c;
-    } else if (originalContent !== c) {
-      stopHandler();
-    }
+    active = false;
+    originalSize = undefined;
+    originalContent = "";
+    content = "";
   }
 
   function handler(r) {
     if (r.request.url === url) {
-      r.getContent().then(compareContent);
-      if (typeof original === "undefined") {
-        original = r.response.bodySize;
-      } else if (original !== r.response.bodySize) {
+      r.getContent().then(([c]) => {
+        content = c;
+      });
+      if (typeof originalSize === "undefined") {
+        originalSize = r.response.bodySize;
+      } else if (originalSize !== r.response.bodySize) {
         stopHandler();
         return;
       }
       setTimeout(browser.devtools.inspectedWindow.reload, interval * 1000);
     }
+  }
+
+  $: if (originalContent !== "") {
+    if (originalContent !== content) {
+      stopHandler();
+    }
+  } else {
+    originalContent = content;
   }
 
   $: if (prod && active) {
