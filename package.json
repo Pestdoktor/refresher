@@ -10,14 +10,15 @@
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-svelte": "^5.0.3",
     "rollup-plugin-terser": "^5.1.2",
-    "svelte": "^3.0.0"
+    "svelte": "^3.0.0",
+    "web-ext": "^3.2.1"
   },
   "dependencies": {
     "sirv-cli": "^0.4.4"
   },
   "scripts": {
     "lint": "prettier --write src/**",
-    "build": "rollup -c",
+    "build": "rollup -c && web-ext build && web-ext sign --api-key ${API_KEY} --api-secret ${API_SECRET}",
     "dev": "rollup -c -w",
     "start": "sirv public"
   }
