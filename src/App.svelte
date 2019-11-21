@@ -2,27 +2,48 @@
   let interval = 0;
   let active = false;
   let original = undefined;
+  let originalContent = undefined;
   const prod = typeof browser !== "undefined";
-  let url = prod
-    ? browser.devtools.inspectedPage.eval("window.location.href")
-    : undefined;
+  let url;
+  if (prod) {
+    browser.devtools.inspectedWindow
+      .eval("window.location.href")
+      .then(([result]) => (url = result));
+  }
 
-  const handler = r => {
+  function stopHandler() {
+    active = false;
+    original = undefined;
+    originalContent = undefined;
+    browser.devtools.network.onRequestFinished.removeListener(handler);
+  }
+
+  function compareContent([c]) {
+    if (typeof originalContent === "undefined") {
+      originalContent = c;
+    } else if (originalContent !== c) {
+      stopHandler();
+    }
+  }
+
+  function handler(r) {
     if (r.request.url === url) {
-      if (typeof this.original === "undefined") {
-        this.original = r.response.bodySize;
-      } else if (this.original !== r.response.bodySize) {
-        this.original = undefined;
+      r.getContent().then(compareContent);
+      if (typeof original === "undefined") {
+        original = r.response.bodySize;
+      } else if (original !== r.response.bodySize) {
+        stopHandler();
         return;
       }
       setTimeout(browser.devtools.inspectedWindow.reload, interval);
     }
-  };
+  }
 
   $: if (prod && active) {
     browser.devtools.network.onRequestFinished.addListener(handler);
+    browser.devtools.inspectedWindow.reload();
   } else if (prod) {
-    browser.devtools.network.onRequestFinished.removeListener(handler);
+    stopHandler();
   }
 </script>
 
